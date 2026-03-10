@@ -1,0 +1,85 @@
+Day 02 — Portfolio Skins, or: Teaching an AI to Have Taste
+
+  ---
+  The idea seemed simple enough: a theme switcher for the portfolio. Pick a vibe, get a look. One of the options would let you type in a description — "deep sea bioluminescence," "retro 80s arcade" — and AI would generate
+  the full color scheme on the spot.
+
+  It is live here if you want to play with it.
+
+  What It Does
+
+  Portfolio Skins is a small Next.js app (hosted on GitHub Pages) with a sidebar of pre-made themes and an AI generator. Themes aren't just colors — they control fonts, backdrop blur intensity, glass card opacity, gradient accents, and CSS background patterns. Switching from Cyberpunk to Neon Tokyo to Matrix changes the
+  whole personality of my site.
+
+  The AI side runs through a Cloudflare Worker, which holds the Anthropic API key and proxies requests so none
+  of that leaks into the static frontend. Type a description, hit generate, and Claude returns a JSON blob of
+  CSS custom properties that get applied instantly.
+
+  Where It Got Complicated
+
+  The JSON Parsing Problem
+
+  The first version of the worker kept returning "Failed to parse theme". Turned out Claude was generating
+  font-family stacks like:
+
+  "--font-heading": "Georgia", serif
+
+  Inside a JSON string. The inner quotes broke JSON.parse immediately. The fix was to stop asking Claude for
+  font stacks entirely — instead, it returns a single generic keyword (serif, monospace, cursive, etc.) and the
+  client maps that to a real font stack. Simpler, more reliable.
+
+  I also had to strip markdown code fences from Claude's responses, since it would sometimes wrap the JSON in
+  ```json ``` despite being explicitly told not to.
+
+  The Design Problem
+
+  Here's the honest version of what happened with some of the themes.
+
+  I asked for cow print. I got white background, a CSS pattern of 18 radial-gradient ellipses scattered 
+  across the page, and a bit of blurring on top. Sure, cow print is essentially a variant of polka-dots, 
+  but cow print should be recognizable. I considered pre-loading a cow print as a background option for 
+  the CSS, but pre-loading potential background images is not sustainable and not the goal. I decided 
+  to cut the cow print theme entirely.
+
+  I asked for Light Mode. I got #fafaf8. Harsh, flat, zero personality.
+
+  The issue isn't that Claude writes bad code. The issue is that Claude is generating visual
+  output based on language alone — no actual rendering, no pixel feedback, no "oh that looks terrible, let me
+  adjust." Claude could write a CSS pattern for leopard print without ever having seen what that pattern looks like
+  when rendered, but the gap between described correctly and looks good is enormous.
+
+  This is a real limitation, and a genuinely interesting one. It's not about intelligence — it's about modality.
+  A sighted designer would immediately know the cow spots were wrong. Claude doesn't have that loop.
+
+  Bringing In a Designer
+
+  So I'm bringing in an image generation model as a design layer for the next iteration.
+
+  The new flow will work like this: describe a vibe, the image model generates a visual mockup of what that
+  theme could look like. Claude analyzes the mockup — actual pixel colors,
+  actual composition — and generates the CSS theme from that. The design feedback loop that was missing gets
+  filled in by a model that can actually render and evaluate aesthetics.
+
+  It's a better division of labor. The image model handles the visual imagination. Claude handles the
+  implementation. I handle the glue.
+
+  That integration is its own project — coming soon.
+
+  Technical Stack
+
+  - Next.js 15 static export → GitHub Pages
+  - Cloudflare Workers — API proxy, holds secrets, handles CORS
+  - Anthropic API (claude-sonnet-4-6) — theme JSON generation
+  - Tailwind CSS v4 with CSS custom properties for runtime theming
+  - CSS radial-gradient patterns for textured backgrounds (Matrix scanlines, etc.)
+  - Google Fonts — Space Grotesk, Inter, Orbitron, Lora, Pacifico — all pre-loaded so switching fonts is instant
+
+  What I'd Do Differently
+
+  Start with the JSON contract first. Designing the full prompt and then discovering that font stacks break JSON
+   parsing is exactly the kind of thing you catch early if you test the output schema before building the UI
+  around it.
+
+  Also: don't ask a text model to be a visual designer. Give it a reference image and let it extract. That's
+  what the next project is fixing.
+
