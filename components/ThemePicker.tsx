@@ -18,9 +18,10 @@ function resolveFont(val: string): string {
 type Props = {
   theme: Theme;
   onThemeChange: (theme: Theme) => void;
+  onClose?: () => void;
 };
 
-export default function ThemePicker({ theme, onThemeChange }: Props) {
+export default function ThemePicker({ theme, onThemeChange, onClose }: Props) {
   const [customText, setCustomText] = useState("");
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState("");
@@ -60,28 +61,33 @@ export default function ThemePicker({ theme, onThemeChange }: Props) {
   return (
     <div className="flex flex-col gap-6 p-5">
       {/* App header */}
-      <div>
-        <p className="mb-0.5 font-mono text-[10px] font-semibold uppercase tracking-widest text-white/25">
-          day 02 / 50 projects
-        </p>
-        <h1
-          className="text-2xl font-black tracking-tight text-white"
-          style={{ fontFamily: "var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif" }}
-        >
-          portfolio
-          <span className="gradient-text">-skins</span>
-        </h1>
-        <p className="mt-0.5 text-xs text-white/35">
-          Theme switcher for{" "}
-          <a
-            href="https://reneebe.github.io"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-white/50 underline-offset-2 hover:text-white/70 hover:underline"
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <p className="mb-0.5 font-mono text-[10px] font-semibold uppercase tracking-widest text-white/25">
+            project #2 / 50 projects
+          </p>
+          <h1
+            className="text-2xl font-black tracking-tight text-white"
+            style={{ fontFamily: "var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif" }}
           >
-            rb.dev
-          </a>
-        </p>
+            portfolio
+            <span className="gradient-text">-skins</span>
+          </h1>
+          <p className="mt-1.5 text-xs leading-relaxed text-white/40">
+            Theme switcher for reneebe.github.io
+          </p>
+        </div>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="mt-0.5 flex-shrink-0 text-white/25 transition-colors hover:text-white/60"
+            aria-label="Close panel"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        )}
       </div>
 
       {/* Pre-made themes */}
