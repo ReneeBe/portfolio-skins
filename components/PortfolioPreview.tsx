@@ -42,17 +42,24 @@ export default function PortfolioPreview({ theme }: Props) {
             className="mr-1 px-2 font-black text-white"
             style={{ fontFamily: "var(--font-heading)" }}
           >
-            rb<span className="gradient-text">.dev</span>
+            reneebe<span className="gradient-text">.github.io</span>
           </span>
           <div className="h-4 w-px" style={{ background: `${fg}15` }} />
-          {["Home", "50 Projects", "Blog"].map((label) => (
-            <span
+          {[
+            { label: "Home", href: "https://reneebe.github.io" },
+            { label: "50 Projects", href: "https://reneebe.github.io/50projects" },
+            { label: "Blog", href: "https://reneebe.github.io/blog" },
+          ].map(({ label, href }) => (
+            <a
               key={label}
-              className="rounded-full px-3 py-1 text-xs"
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full px-3 py-1 text-xs transition-opacity hover:opacity-80"
               style={{ color: `${fg}50` }}
             >
               {label}
-            </span>
+            </a>
           ))}
           <div className="h-4 w-px" style={{ background: `${fg}15` }} />
           <span

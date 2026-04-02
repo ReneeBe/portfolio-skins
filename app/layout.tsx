@@ -35,7 +35,7 @@ const pacifico = Pacifico({
 });
 
 export const metadata: Metadata = {
-  title: "portfolio-skins — Theme switcher for rb.dev",
+  title: "portfolio-skins — Theme switcher for reneebe.github.io",
   description:
     "Pick a pre-made skin or describe a vibe and let AI generate a custom theme for the portfolio.",
 };
