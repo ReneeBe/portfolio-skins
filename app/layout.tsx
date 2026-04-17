@@ -47,6 +47,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <script src="https://magiclink.reneebe.workers.dev/sdk.js" data-project="theme-generator" defer></script>
+      </head>
       <body
         className={`${spaceGrotesk.variable} ${inter.variable} ${orbitron.variable} ${lora.variable} ${pacifico.variable} antialiased`}
         style={{ height: "100dvh", overflow: "hidden" }}

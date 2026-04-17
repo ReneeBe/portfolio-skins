@@ -31,8 +31,18 @@ export default function ThemePicker({ theme, onThemeChange, onClose }: Props) {
     setGenerating(true);
     setError("");
     try {
-      const endpoint = process.env.NEXT_PUBLIC_AI_ENDPOINT ?? "";
-      const res = await fetch(endpoint, {
+      // Check access via MagicLink
+      const token = localStorage.getItem("magiclink_token");
+      const checkRes = await fetch("https://magiclink.reneebe.workers.dev/api/projects/theme-generator/check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(token ? { token } : {}),
+      });
+      const checkJson = await checkRes.json() as Record<string, unknown>;
+      if (!checkRes.ok) throw new Error((checkJson.error as string) || (checkJson.message as string) || "Access denied");
+
+      // Call theme worker directly
+      const res = await fetch("https://nano-claude-theme-manager.reneebe.workers.dev", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ description: customText }),
@@ -41,7 +51,8 @@ export default function ThemePicker({ theme, onThemeChange, onClose }: Props) {
         const err = await res.json();
         throw new Error(err.error || "Generation failed");
       }
-      const vars = (await res.json()) as ThemeVars;
+      const data = (await res.json()) as { vars?: ThemeVars } & ThemeVars;
+      const vars = (data.vars ?? data) as ThemeVars;
       vars["--font-heading"] = resolveFont(vars["--font-heading"]);
       vars["--font-body"] = resolveFont(vars["--font-body"]);
       setCustomText("");
